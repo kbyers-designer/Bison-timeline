@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bison Population Collapse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300..700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ============================================================
+   Art direction: bison collapse / Indigenous genocide → haunting, editorial
+   Palette: deep earth / bone / blood-rust accent
+   Typography: Playfair Display (display) + Source Sans 3 (body)
+   ============================================================ */
+:root, [data-theme="light"] {
+  --color-bg: #f5f0e8;
+  --color-surface: #ede7d8;
+  --color-surface-2: #e4dccb;
+  --color-surface-offset: #d9d0bf;
+  --color-divider: #c8bfac;
+  --color-border: #b8ae9a;
+  --color-text: #1e1a14;
+  --color-text-muted: #6b6150;
+  --color-text-faint: #a8998a;
+  --color-text-inverse: #f5f0e8;
+  --color-primary: #8b2500;
+  --color-primary-hover: #6e1c00;
+  --color-primary-highlight: rgba(139,37,0,0.12);
+  --color-eco: #3d6b2e;
+  --color-eco-bg: rgba(61,107,46,0.12);
+  --color-pol: #8b2500;
+  --color-pol-bg: rgba(139,37,0,0.12);
+  --color-cult: #5c4a00;
+  --color-cult-bg: rgba(92,74,0,0.14);
+  --color-recov: #1a5c78;
+  --color-recov-bg: rgba(26,92,120,0.12);
+  --shadow-sm: 0 1px 3px rgba(30,26,20,0.08);
+  --shadow-md: 0 4px 16px rgba(30,26,20,0.12);
+  --shadow-lg: 0 12px 40px rgba(30,26,20,0.18);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Source Sans 3', 'Helvetica Neue', sans-serif;
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+  --text-2xl: clamp(2rem, 1.2rem + 2.5vw, 3.5rem);
+  --text-hero: clamp(2.5rem, 1rem + 5vw, 5.5rem);
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+  --space-4: 1rem; --space-6: 1.5rem; --space-8: 2rem;
+  --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem;
+  --content-default: 1100px;
+  --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] {
+  --color-bg: #0e0c08;
+  --color-surface: #141210;
+  --color-surface-2: #1a1814;
+  --color-surface-offset: #201e19;
+  --color-divider: #2a271f;
+  --color-border: #342f25;
+  --color-text: #e8e0d0;
+  --color-text-muted: #8a8070;
+  --color-text-faint: #5a5248;
+  --color-text-inverse: #1e1a14;
+  --color-primary: #d4633a;
+  --color-primary-hover: #e07a52;
+  --color-primary-highlight: rgba(212,99,58,0.15);
+  --color-eco: #6daa45;
+  --color-eco-bg: rgba(109,170,69,0.12);
+  --color-pol: #d4633a;
+  --color-pol-bg: rgba(212,99,58,0.12);
+  --color-cult: #c9a020;
+  --color-cult-bg: rgba(201,160,32,0.12);
+  --color-recov: #4f98a3;
+  --color-recov-bg: rgba(79,152,163,0.12);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.25);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.35);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+img { display: block; max-width: 100%; height: auto; }
+p, li { text-wrap: pretty; max-width: 72ch; }
+
+/* SKIP LINK */
+.sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0; }
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-divider);
+  backdrop-filter: blur(8px);
+  padding: var(--space-4) var(--space-6);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+.header-logo {
+  display: flex; align-items: center; gap: var(--space-3);
+  text-decoration: none; color: var(--color-text);
+}
+.header-logo svg { flex-shrink: 0; }
+.logo-wordmark {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+.logo-wordmark span { color: var(--color-primary); }
+.header-actions { display: flex; align-items: center; gap: var(--space-3); }
+.theme-toggle {
+  background: none; border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+  display: flex; align-items: center;
+}
+.theme-toggle:hover { color: var(--color-text); border-color: var(--color-text-muted); }
+
+/* LEGEND */
+.legend-bar {
+  background: var(--color-surface-2);
+  border-bottom: 1px solid var(--color-divider);
+  padding: var(--space-3) var(--space-6);
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4);
+}
+.legend-label { font-size: var(--text-xs); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.legend-items { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.legend-item { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-xs); color: var(--color-text-muted); }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dot-eco { background: var(--color-eco); }
+.dot-pol { background: var(--color-pol); }
+.dot-cult { background: var(--color-cult); }
+.dot-recov { background: var(--color-recov); }
+.dot-pop { background: #888; }
+
+/* FILTER BUTTONS */
+.filter-bar {
+  padding: var(--space-4) var(--space-6);
+  display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-divider);
+}
+.filter-label { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-faint); margin-right: var(--space-2); }
+.filter-btn {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.filter-btn:hover { color: var(--color-text); border-color: var(--color-text-muted); }
+.filter-btn.active { color: var(--color-text-inverse); background: var(--color-text); border-color: var(--color-text); }
+.filter-btn.active.eco { background: var(--color-eco); border-color: var(--color-eco); color: white; }
+.filter-btn.active.pol { background: var(--color-pol); border-color: var(--color-pol); color: white; }
+.filter-btn.active.cult { background: var(--color-cult); border-color: var(--color-cult); color: white; }
+.filter-btn.active.recov { background: var(--color-recov); border-color: var(--color-recov); color: white; }
+
+/* ── HERO ────────────────────────────────────────────────── */
+.hero {
+  padding: clamp(var(--space-12), 8vw, var(--space-16)) var(--space-6) clamp(var(--space-8), 5vw, var(--space-12));
+  max-width: var(--content-default);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-10);
+  align-items: center;
+}
+.hero-text {}
+.hero-eyebrow {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+  font-weight: 600;
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: var(--text-hero);
+  line-height: 1.05;
+  color: var(--color-text);
+  margin-bottom: var(--space-4);
+}
+.hero-title em { color: var(--color-primary); font-style: italic; }
+.hero-desc {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  max-width: 55ch;
+}
+.hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+.stat-num {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1;
+  margin-bottom: var(--space-2);
+}
+.stat-label { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.4; }
+
+/* ── CHART SECTION ──────────────────────────────────────── */
+.chart-section {
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-divider);
+  border-bottom: 1px solid var(--color-divider);
+  padding: var(--space-10) var(--space-6);
+}
+.section-inner { max-width: var(--content-default); margin: 0 auto; }
+.section-heading {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-2);
+}
+.section-sub { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-6); }
+.chart-wrap {
+  position: relative;
+  height: 320px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── TIMELINE ────────────────────────────────────────────── */
+.timeline-section {
+  padding: var(--space-12) var(--space-6);
+  max-width: var(--content-default);
+  margin: 0 auto;
+}
+.timeline-section > .section-heading { margin-bottom: var(--space-2); }
+.timeline-section > .section-sub { margin-bottom: var(--space-10); }
+
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 120px;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--color-divider) 5%, var(--color-divider) 95%, transparent);
+}
+
+.tl-item {
+  display: flex;
+  gap: var(--space-6);
+  position: relative;
+  padding: var(--space-4) 0;
+  transition: opacity var(--transition);
+}
+.tl-item.hidden { display: none; }
+
+.tl-year {
+  flex-shrink: 0;
+  width: 100px;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text-muted);
+  padding-top: var(--space-4);
+  line-height: 1;
+}
+.tl-dot-wrap {
+  flex-shrink: 0;
+  width: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--space-4);
+}
+.tl-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--color-bg);
+  box-shadow: 0 0 0 2px currentColor;
+  flex-shrink: 0;
+}
+.tl-dot.eco { color: var(--color-eco); background: var(--color-eco); }
+.tl-dot.pol { color: var(--color-pol); background: var(--color-pol); }
+.tl-dot.cult { color: var(--color-cult); background: var(--color-cult); }
+.tl-dot.recov { color: var(--color-recov); background: var(--color-recov); }
+.tl-dot.pop { color: var(--color-text-muted); background: var(--color-text-muted); }
+
+.tl-card {
+  flex: 1;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-6);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition), transform var(--transition);
+  cursor: default;
+}
+.tl-card:hover { box-shadow: var(--shadow-md); transform: translateX(3px); }
+
+.tl-card-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); flex-wrap: wrap; }
+.tl-badge {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+}
+.badge-eco { background: var(--color-eco-bg); color: var(--color-eco); }
+.badge-pol { background: var(--color-pol-bg); color: var(--color-pol); }
+.badge-cult { background: var(--color-cult-bg); color: var(--color-cult); }
+.badge-recov { background: var(--color-recov-bg); color: var(--color-recov); }
+.badge-pop { background: rgba(128,128,128,0.12); color: var(--color-text-muted); }
+
+.tl-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.25;
+  margin-bottom: var(--space-2);
+}
+.tl-body { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.65; }
+.tl-pop-note {
+  display: inline-block;
+  margin-top: var(--space-3);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-style: italic;
+  color: var(--color-primary);
+  border-left: 3px solid var(--color-primary);
+  padding-left: var(--space-3);
+}
+
+/* ── ERA MARKER ─────────────────────────────────────────── */
+.era-marker {
+  padding: var(--space-8) 0 var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.era-marker-line { flex: 1; height: 1px; background: var(--color-divider); }
+.era-marker-label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-text-faint);
+  white-space: nowrap;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-divider);
+  border-radius: 999px;
+}
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+footer {
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-divider);
+  padding: var(--space-8) var(--space-6);
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+footer a { color: var(--color-text-muted); }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; gap: var(--space-8); }
+  .hero-stats { grid-template-columns: 1fr 1fr; }
+  .timeline::before { left: 80px; }
+  .tl-year { width: 60px; font-size: var(--text-xs); }
+  .legend-bar { padding: var(--space-3) var(--space-4); }
+  .chart-wrap { height: 220px; }
+}
+@media (max-width: 480px) {
+  .hero-stats { grid-template-columns: 1fr; }
+  .timeline::before { display: none; }
+  .tl-year { display: none; }
+  .tl-dot-wrap { display: none; }
+}
+
+/* ANIMATION */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tl-item { animation: fadeUp 0.4s ease both; }
+@media (prefers-reduced-motion: reduce) {
+  .tl-item { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<a class="sr-only" href="#main">Skip to main content</a>
+
+<!-- HEADER -->
+<header>
+  <a href="#" class="header-logo" aria-label="Bison Timeline home">
+    <!-- SVG LOGO: minimalist bison skull / horns mark -->
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <!-- skull base -->
+      <ellipse cx="18" cy="20" rx="9" ry="8" stroke="currentColor" stroke-width="1.8" fill="none"/>
+      <!-- nostrils -->
+      <circle cx="15" cy="22" r="1.5" fill="currentColor" opacity="0.5"/>
+      <circle cx="21" cy="22" r="1.5" fill="currentColor" opacity="0.5"/>
+      <!-- horns -->
+      <path d="M9 16 C5 14, 3 10, 6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M27 16 C31 14, 33 10, 30 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <!-- eyes -->
+      <circle cx="14.5" cy="18.5" r="1.2" fill="currentColor"/>
+      <circle cx="21.5" cy="18.5" r="1.2" fill="currentColor"/>
+    </svg>
+    <div class="logo-wordmark">Bison <span>Collapse</span></div>
+  </a>
+  <div class="header-actions">
+    <button class="theme-toggle" data-theme-toggle aria-label="Switch to light mode">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- LEGEND -->
+<div class="legend-bar">
+  <span class="legend-label">Event types:</span>
+  <div class="legend-items">
+    <div class="legend-item"><div class="legend-dot dot-eco"></div> Ecological / Population</div>
+    <div class="legend-item"><div class="legend-dot dot-pol"></div> Political / Military</div>
+    <div class="legend-item"><div class="legend-dot dot-cult"></div> Cultural / Economic</div>
+    <div class="legend-item"><div class="legend-dot dot-recov"></div> Conservation / Recovery</div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <span class="filter-label">Filter:</span>
+  <button class="filter-btn active" data-filter="all">All Events</button>
+  <button class="filter-btn eco" data-filter="eco">Ecological</button>
+  <button class="filter-btn pol" data-filter="pol">Political</button>
+  <button class="filter-btn cult" data-filter="cult">Cultural</button>
+  <button class="filter-btn recov" data-filter="recov">Recovery</button>
+</div>
+
+<main id="main">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <p class="hero-eyebrow">1800 – Present · North America</p>
+    <h1 class="hero-title">The <em>Vanishing</em> of 60 Million</h1>
+    <p class="hero-desc">In less than a century, the American bison — the continent's most populous large mammal — was driven from 60 million animals to fewer than 400. This is not only an ecological story. It is a story of deliberate extermination, broken treaties, and the systematic destruction of Indigenous lifeways.</p>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-card">
+      <div class="stat-num">60M</div>
+      <div class="stat-label">Estimated bison population, early 1800s</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">541</div>
+      <div class="stat-label">Animals remaining by 1889 — a 99.999% collapse</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">&lt;15 yrs</div>
+      <div class="stat-label">Time for the "Great Slaughter" to destroy the southern herd</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">~363K</div>
+      <div class="stat-label">Bison alive today — a partial, managed recovery</div>
+    </div>
+  </div>
+</section>
+
+<!-- POPULATION CHART -->
+<div class="chart-section">
+  <div class="section-inner">
+    <h2 class="section-heading">Population Trajectory</h2>
+    <p class="section-sub">Estimated bison numbers, 1800–2020. Note the near-vertical collapse between 1870–1890.</p>
+    <div class="chart-wrap">
+      <canvas id="bisonChart" aria-label="Bison population chart from 1800 to 2020"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<section class="timeline-section">
+  <h2 class="section-heading">Annotated Timeline</h2>
+  <p class="section-sub">Ecological, political, cultural, and conservation events mapped alongside population changes.</p>
+
+  <div class="timeline" id="timeline">
+
+    <!-- ERA: Pre-Collapse -->
+    <div class="era-marker"><div class="era-marker-line"></div><div class="era-marker-label">Pre-Collapse Era · 1800–1850</div><div class="era-marker-line"></div></div>
+
+    <div class="tl-item" data-type="pop">
+      <div class="tl-year">c. 1800</div>
+      <div class="tl-dot-wrap"><div class="tl-dot pop"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-pop">Population</span></div>
+        <div class="tl-title">~60 Million Bison Roam the Continent</div>
+        <div class="tl-body">An estimated 50–60 million American bison range across the Great Plains and beyond — one of the largest concentrations of large mammal biomass in world history. Indigenous peoples have sustainably hunted bison for over 10,000 years.</div>
+        <div class="tl-pop-note">Population: ~60,000,000</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="cult">
+      <div class="tl-year">1802</div>
+      <div class="tl-dot-wrap"><div class="tl-dot cult"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-cult">Cultural</span></div>
+        <div class="tl-title">Bison Gone from Ohio</div>
+        <div class="tl-body">European settlers push bison out of Ohio entirely. Plowing, farming, and habitat destruction begin eroding bison range along the eastern frontier. This marks the first clear wave of localized extirpation.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="eco">
+      <div class="tl-year">1804–06</div>
+      <div class="tl-dot-wrap"><div class="tl-dot eco"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-eco">Ecological</span></div>
+        <div class="tl-title">Lewis &amp; Clark Report Vast Herds</div>
+        <div class="tl-body">The Lewis and Clark expedition travels the upper Missouri River, reporting enormous herds that "darkened the plains." Their journals help establish the baseline abundance of pre-collapse bison populations and document the animal's central role in Plains ecosystems.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="cult">
+      <div class="tl-year">1820s</div>
+      <div class="tl-dot-wrap"><div class="tl-dot cult"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-cult">Cultural / Economic</span></div>
+        <div class="tl-title">Commercial Robe Trade Expands</div>
+        <div class="tl-body">The commercial market for bison robes and tongues grows rapidly. Native American tribes increasingly trade hides for Euro-American goods, intensifying hunting pressure beyond subsistence needs. Early signs of market-driven overexploitation emerge on the Great Plains.</div>
+        <div class="tl-pop-note">Population: ~40,000,000 (1830)</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="pol">
+      <div class="tl-year">1830</div>
+      <div class="tl-dot-wrap"><div class="tl-dot pol"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-pol">Political</span></div>
+        <div class="tl-title">Indian Removal Act</div>
+        <div class="tl-body">President Andrew Jackson signs the Indian Removal Act, forcing tens of thousands of Native Americans from their eastern homelands to west of the Mississippi. This policy dramatically reshapes the human geography of the Plains and accelerates Euro-American expansion toward bison territory.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="eco">
+      <div class="tl-year">1840s</div>
+      <div class="tl-dot-wrap"><div class="tl-dot eco"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-eco">Ecological</span></div>
+        <div class="tl-title">Cattle Disease &amp; Horse Competition</div>
+        <div class="tl-body">Bovine diseases carried by domestic cattle begin infecting bison herds. Feral horses, themselves introduced by Europeans, compete for grassland resources. These ecological pressures — combined with drought cycles — compound the impact of hunting before the main commercial slaughter begins.</div>
+        <div class="tl-pop-note">Population: ~35,650,000 (1840)</div>
+      </div>
+    </div>
+
+    <!-- ERA: Railroad & Slaughter -->
+    <div class="era-marker"><div class="era-marker-line"></div><div class="era-marker-label">The Great Slaughter · 1860–1890</div><div class="era-marker-line"></div></div>
+
+    <div class="tl-item" data-type="cult">
+      <div class="tl-year">1860s</div>
+      <div class="tl-dot-wrap"><div class="tl-dot cult"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-cult">Cultural / Economic</span></div>
+        <div class="tl-title">Transcontinental Railroad Bisects the Plains</div>
+        <div class="tl-body">Railroad construction across the Great Plains physically divides bison into separate northern and southern herds. Hundreds of thousands of bison are killed to feed railroad crews and army posts. Buffalo Bill Cody gains fame as a commercial hide hunter. The railroad also moves professional hunters and their rifles onto the Plains at industrial scale.</div>
+        <div class="tl-pop-note">Population: ~5,500,000 (1870)</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="pol">
+      <div class="tl-year">1864</div>
+      <div class="tl-dot-wrap"><div class="tl-dot pol"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-pol">Political</span></div>
+        <div class="tl-title">Sand Creek Massacre</div>
+        <div class="tl-body">U.S. troops massacre a peaceful encampment of Cheyenne and Arapaho people in Colorado. Sand Creek marks a brutal intensification of U.S. military campaigns on the Plains, directly tied to the strategy of destroying Native peoples' subsistence base — including bison.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="pol">
+      <div class="tl-year">1867</div>
+      <div class="tl-dot-wrap"><div class="tl-dot pol"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-pol">Political</span></div>
+        <div class="tl-title">Medicine Lodge Treaty &amp; Plains Indian Wars</div>
+        <div class="tl-body">Medicine Lodge Treaty attempts to confine southern Plains tribes to reservations, reducing bison territory available to Indigenous hunters. The ongoing Plains Indian Wars accelerate U.S. military pressure. Generals Sherman and Sheridan explicitly support the extermination of bison as a war strategy against Native peoples.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="cult">
+      <div class="tl-year">1871</div>
+      <div class="tl-dot-wrap"><div class="tl-dot cult"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-cult">Cultural / Economic</span></div>
+        <div class="tl-title">Industrial Hide Tanning Technology Arrives</div>
+        <div class="tl-body">A Pennsylvania tannery discovers how to commercially tan bison hides for industrial leather, making year-round hunting profitable. European demand — particularly from Germany — explodes. This single technological shift triggers the most destructive phase of commercial hunting. In 1871–72, an average of 5,000 bison were killed every single day.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="pol">
+      <div class="tl-year">1871</div>
+      <div class="tl-dot-wrap"><div class="tl-dot pol"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-pol">Political</span></div>
+        <div class="tl-title">Federal Protection Bill Disappears</div>
+        <div class="tl-body">Territorial delegate R.C. McCormick introduces a federal bill making it illegal to kill bison on public lands except for food. The bill mysteriously disappears before it can be voted on. Several states pass nominal protections, but none are enforced — in many cases, by design. The military actively provides ammunition to commercial hunters.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="pol">
+      <div class="tl-year">1873</div>
+      <div class="tl-dot-wrap"><div class="tl-dot pol"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-pol">Political</span></div>
+        <div class="tl-title">Secretary of Interior: "Civilization Requires Bison Extinction"</div>
+        <div class="tl-body">The U.S. Secretary of the Interior formally states that "the civilization of the Indian is impossible while the buffalo remain on the Plains." The Army begins providing free ammunition to hide hunters. This marks the explicit militarization of ecological destruction — the killing of bison as a weapon of Indigenous subjugation.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="eco">
+      <div class="tl-year">1874–75</div>
+      <div class="tl-dot-wrap"><div class="tl-dot eco"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-eco">Ecological</span></div>
+        <div class="tl-title">Southern Herd Decimated</div>
+        <div class="tl-body">Commercial hunters wipe out the southern bison herd in the Texas Panhandle and southern Plains in just two years. The Red River War (1874–75) forces the last free southern Plains tribes — Comanche, Kiowa, Cheyenne — onto reservations as their primary food source collapses. The southern herd is functionally gone by 1878.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="pol">
+      <div class="tl-year">1876</div>
+      <div class="tl-dot-wrap"><div class="tl-dot pol"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-pol">Political</span></div>
+        <div class="tl-title">Battle of Little Bighorn &amp; Aftermath</div>
+        <div class="tl-body">Lakota and Cheyenne forces defeat Custer at Little Bighorn. The U.S. response is a massive military escalation on the northern Plains. As the northern bison herd becomes the last refuge for still-free nations like the Lakota Sioux, its destruction becomes an explicit military objective.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="eco">
+      <div class="tl-year">1880–82</div>
+      <div class="tl-dot-wrap"><div class="tl-dot eco"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-eco">Ecological</span></div>
+        <div class="tl-title">Northern Herd Annihilated</div>
+        <div class="tl-body">The northern herd — the last major population — collapses with terrifying speed. In the winter of 1881–82, one county in Montana shipped 180,000 bison skins. By 1883, Sitting Bull's Lakota hunting party searches desperately but finds almost no bison at all — a journey that ends in mass starvation and, ultimately, surrender.</div>
+        <div class="tl-pop-note">Population: ~395,000 (1880) → functionally zero wild herds by 1884</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="cult">
+      <div class="tl-year">1883</div>
+      <div class="tl-dot-wrap"><div class="tl-dot cult"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-cult">Cultural</span></div>
+        <div class="tl-title">Sitting Bull's Last Hunt — and Surrender</div>
+        <div class="tl-body">Sitting Bull leads what becomes the last major Lakota bison hunt. They find almost nothing. The disappearance of the bison directly forces the surrender of the last free Plains nations. For the Lakota, Comanche, Blackfoot, and dozens of other peoples, the bison's extinction meant the end of their economic sovereignty and a way of life 10,000 years old.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="eco">
+      <div class="tl-year">1889</div>
+      <div class="tl-dot-wrap"><div class="tl-dot eco"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-eco">Ecological</span></div>
+        <div class="tl-title">Continental Census: 541 Animals Remain</div>
+        <div class="tl-body">Zoologist William Hornaday conducts the first systematic count of bison across North America and finds only 541 animals remaining — down from 60 million in less than a century. A wild Yellowstone herd of 25 animals and a handful of private captive herds represent the entire genetic future of the species.</div>
+        <div class="tl-pop-note">Population: 541 — the bottleneck</div>
+      </div>
+    </div>
+
+    <!-- ERA: Near-Extinction & Early Conservation -->
+    <div class="era-marker"><div class="era-marker-line"></div><div class="era-marker-label">Near-Extinction &amp; Early Recovery · 1890–1930</div><div class="era-marker-line"></div></div>
+
+    <div class="tl-item" data-type="pol">
+      <div class="tl-year">1890</div>
+      <div class="tl-dot-wrap"><div class="tl-dot pol"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-pol">Political</span></div>
+        <div class="tl-title">Wounded Knee Massacre</div>
+        <div class="tl-body">With the bison gone and reservation life enforced, the Ghost Dance movement — a spiritual response to cultural genocide — is suppressed violently at Wounded Knee. The U.S. Army kills between 250 and 300 Lakota Sioux. The collapse of the bison and the Wounded Knee massacre are directly linked — both mark the enforced end of the Plains Indian way of life.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="recov">
+      <div class="tl-year">1894</div>
+      <div class="tl-dot-wrap"><div class="tl-dot recov"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-recov">Conservation</span></div>
+        <div class="tl-title">Yellowstone Poaching Prohibited</div>
+        <div class="tl-body">The Lacey Act creates federal penalties for poaching in Yellowstone, protecting the last wild herd of approximately 25 bison. This tiny herd, along with 5–6 small captive herds maintained by private ranchers and a few Indigenous families, constitutes the entire founding population for all subsequent recovery.</div>
+        <div class="tl-pop-note">Population: ~300 (1900)</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="recov">
+      <div class="tl-year">1905</div>
+      <div class="tl-dot-wrap"><div class="tl-dot recov"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-recov">Conservation</span></div>
+        <div class="tl-title">American Bison Society Founded by Hornaday &amp; Roosevelt</div>
+        <div class="tl-body">William Hornaday and President Theodore Roosevelt co-found the American Bison Society at the Bronx Zoo, the first organized effort to scientifically manage bison recovery. The Society begins moving captive animals to new federal ranges and works to establish protected reserves — pioneering modern wildlife conservation methods.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="recov">
+      <div class="tl-year">1907</div>
+      <div class="tl-dot-wrap"><div class="tl-dot recov"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-recov">Conservation</span></div>
+        <div class="tl-title">Wichita Mountains Wildlife Refuge Established</div>
+        <div class="tl-body">Fifteen bison from the Bronx Zoo are shipped by train to the newly established Wichita Mountains Wildlife Refuge in Oklahoma — the first intentional reintroduction to public land. The bison arrive in wooden crates on a freight car. This moment is considered the symbolic start of managed bison recovery.</div>
+      </div>
+    </div>
+
+    <!-- ERA: Modern Recovery -->
+    <div class="era-marker"><div class="era-marker-line"></div><div class="era-marker-label">Managed Recovery &amp; Modern Era · 1930–Present</div><div class="era-marker-line"></div></div>
+
+    <div class="tl-item" data-type="eco">
+      <div class="tl-year">1930s–50s</div>
+      <div class="tl-dot-wrap"><div class="tl-dot eco"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-eco">Ecological</span></div>
+        <div class="tl-title">Population Climbs Past 5,000</div>
+        <div class="tl-body">Bison numbers on federal reserves and private ranches slowly climb. By 1944–47, an estimated 5,000 animals exist in North America. However, the vast majority are on private ranches managed for commercial production, raising genetic integrity concerns as bison-cattle hybridization becomes widespread.</div>
+        <div class="tl-pop-note">Population: ~5,000 (1944–47)</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="pol">
+      <div class="tl-year">1970s</div>
+      <div class="tl-dot-wrap"><div class="tl-dot pol"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-pol">Political</span></div>
+        <div class="tl-title">American Indian Movement &amp; Cultural Resurgence</div>
+        <div class="tl-body">The American Indian Movement (AIM) and the broader Indigenous rights movement revive attention to treaty violations and cultural erasure. The near-extinction of bison — and its deliberate political nature — becomes a symbol of broader injustice. Indigenous-led bison restoration efforts begin as acts of cultural reclamation.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="recov">
+      <div class="tl-year">1994</div>
+      <div class="tl-dot-wrap"><div class="tl-dot recov"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-recov">Conservation</span></div>
+        <div class="tl-title">InterTribal Buffalo Council Founded</div>
+        <div class="tl-body">Indigenous nations form the InterTribal Buffalo Council to reestablish bison herds on tribal lands — reclaiming both the animal and cultural sovereignty. Today the Council includes over 80 tribal nations managing more than 20,000 bison. Tribal restoration is now a central pillar of bison recovery, explicitly linking ecological restoration with Indigenous self-determination.</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="recov">
+      <div class="tl-year">2016</div>
+      <div class="tl-dot-wrap"><div class="tl-dot recov"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-recov">Conservation</span></div>
+        <div class="tl-title">Bison Named U.S. National Mammal</div>
+        <div class="tl-body">President Obama signs the National Bison Legacy Act, making the American bison the official national mammal of the United States. The designation acknowledges the animal's ecological and cultural significance. By this point, approximately 400,000 bison exist in North America — the vast majority on private ranches, with only about 30,000 in conservation herds.</div>
+        <div class="tl-pop-note">Population: ~400,000 (private + conservation)</div>
+      </div>
+    </div>
+
+    <div class="tl-item" data-type="eco">
+      <div class="tl-year">Today</div>
+      <div class="tl-dot-wrap"><div class="tl-dot eco"></div></div>
+      <div class="tl-card">
+        <div class="tl-card-header"><span class="tl-badge badge-eco">Ecological</span></div>
+        <div class="tl-title">A Partial Recovery — and an Ongoing Reckoning</div>
+        <div class="tl-body">Roughly 363,000–400,000 bison exist in North America today, but only ~15,000–30,000 are in conservation herds on public or tribal land. The species is genetically recovered but ecologically marginalized — a pale ghost of the continent-shaping force it once was. Research confirms that bison-reliant Indigenous communities suffered a permanent, lasting economic shock that still reverberates today.</div>
+        <div class="tl-pop-note">Population: ~363,000 (conservation + commercial)</div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+</section>
+
+</main>
+
+<footer>
+  <p>Sources: U.S. National Park Service · American Bison Wikipedia · Emory University Study (2023) · AIP.org · Ozark Valley Bison Ranch data · Scribd Timeline of the American Bison</p>
+  <p style="margin-top:0.5rem;">Research visualization — Katie Byers / WildTomorrow</p>
+</footer>
+
+<script>
+// ── THEME TOGGLE ─────────────────────────────────────────
+(function(){
+  const t=document.querySelector('[data-theme-toggle]');
+  const r=document.documentElement;
+  let d = r.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+  r.setAttribute('data-theme',d);
+  function updateIcon(theme) {
+    if(!t) return;
+    t.setAttribute('aria-label','Switch to '+(theme==='dark'?'light':'dark')+' mode');
+    t.innerHTML = theme==='dark'
+      ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  }
+  updateIcon(d);
+  if(t) t.addEventListener('click',()=>{ d=d==='dark'?'light':'dark'; r.setAttribute('data-theme',d); updateIcon(d); updateChart(); });
+})();
+
+// ── FILTER ───────────────────────────────────────────────
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    document.querySelectorAll('.tl-item').forEach(item => {
+      const type = item.dataset.type;
+      if (f === 'all' || type === f || (f === 'eco' && type === 'pop')) {
+        item.classList.remove('hidden');
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+  });
+});
+
+// ── POPULATION CHART ─────────────────────────────────────
+const popData = {
+  labels: ['1800','1820','1830','1840','1860','1870','1875','1880','1883','1884','1889','1900','1920','1944','1960','1980','2000','2010','2016','2020'],
+  values: [60000000, 50000000, 40000000, 35650000, 15000000, 5500000, 1500000, 395000, 10000, 325, 541, 300, 1500, 5000, 20000, 60000, 200000, 320000, 400000, 363000]
+};
+
+const keyEvents = [
+  { label: 'Railroad splits herds', x: '1860', y: 15000000 },
+  { label: 'Industrial tanning begins', x: '1871', y: 3000000 },
+  { label: 'Southern herd gone', x: '1875', y: 1500000 },
+  { label: 'Northern herd collapse', x: '1883', y: 10000 },
+  { label: 'Hornaday census: 541', x: '1889', y: 541 },
+  { label: 'National Mammal declared', x: '2016', y: 400000 },
+];
+
+let chart;
+function getChartColors() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    lineColor: isDark ? '#d4633a' : '#8b2500',
+    fillStart: isDark ? 'rgba(212,99,58,0.3)' : 'rgba(139,37,0,0.25)',
+    fillEnd: isDark ? 'rgba(212,99,58,0)' : 'rgba(139,37,0,0)',
+    gridColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+    textColor: isDark ? '#8a8070' : '#6b6150',
+  };
+}
+
+function buildChart() {
+  const ctx = document.getElementById('bisonChart').getContext('2d');
+  const c = getChartColors();
+  const grad = ctx.createLinearGradient(0, 0, 0, 300);
+  grad.addColorStop(0, c.fillStart);
+  grad.addColorStop(1, c.fillEnd);
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: popData.labels,
+      datasets: [{
+        label: 'Bison Population',
+        data: popData.values,
+        borderColor: c.lineColor,
+        borderWidth: 2.5,
+        backgroundColor: grad,
+        fill: true,
+        tension: 0.35,
+        pointRadius: 3,
+        pointBackgroundColor: c.lineColor,
+        pointHoverRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const v = ctx.raw;
+              if (v >= 1000000) return `${(v/1000000).toFixed(1)}M bison`;
+              if (v >= 1000) return `${(v/1000).toFixed(0)}K bison`;
+              return `${v} bison`;
+            }
+          },
+          backgroundColor: 'rgba(20,18,16,0.92)',
+          titleColor: '#e8e0d0',
+          bodyColor: '#8a8070',
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1,
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: c.gridColor },
+          ticks: { color: c.textColor, font: { family: "'Source Sans 3', sans-serif", size: 11 }, maxRotation: 45 }
+        },
+        y: {
+          type: 'logarithmic',
+          grid: { color: c.gridColor },
+          ticks: {
+            color: c.textColor,
+            font: { family: "'Source Sans 3', sans-serif", size: 11 },
+            callback: (v) => {
+              if (v >= 1000000) return (v/1000000)+'M';
+              if (v >= 1000) return (v/1000)+'K';
+              return v;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateChart() {
+  if (!chart) return;
+  const c = getChartColors();
+  const ctx = document.getElementById('bisonChart').getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, 0, 300);
+  grad.addColorStop(0, c.fillStart);
+  grad.addColorStop(1, c.fillEnd);
+  chart.data.datasets[0].borderColor = c.lineColor;
+  chart.data.datasets[0].backgroundColor = grad;
+  chart.data.datasets[0].pointBackgroundColor = c.lineColor;
+  chart.options.scales.x.grid.color = c.gridColor;
+  chart.options.scales.x.ticks.color = c.textColor;
+  chart.options.scales.y.grid.color = c.gridColor;
+  chart.options.scales.y.ticks.color = c.textColor;
+  chart.update();
+}
+
+buildChart();
+</script>
+
+</body>
+</html>
